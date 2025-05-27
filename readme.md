@@ -81,9 +81,7 @@ git show --stat
 
 ## Getting Professional Security Analysis
 
-### Free Community Analysis
-
-Share your audit file in the ISPConfig community forums with Claude AI users for basic feedback.
+This next section is all Claude.  
 
 ### Professional Claude Analysis (Recommended)
 
@@ -91,11 +89,9 @@ For comprehensive security review and recommendations:
 
 1. **Sign up for Claude**: <https://claude.ai/referral/T7Fxp0WbSQ> *(Get started with this special link)*
 2. **Upload your audit file**: Drag and drop `/opt/audit/ispconfig-audit/ispconfig-config.json`
-3. **Request analysis**: "Please analyze this ISPConfig3 security audit and provide recommendations"
+3. **Request analysis**: "Use the prompt in the next section"
 
-#### Sample Analysis Request
-
-This is "the prompt" what will get you a report.
+### Claude Prompt to perform analysis
 
 ```
 I've run a security audit on my ISPConfig3 server using the configuration audit tool. 
@@ -227,4 +223,4 @@ This tool is open source and community-driven. Help improve ISPConfig security f
 
 ---
 
-*This tool is developed by the ISPConfig security community and powered by Anthropic's Claude AI for professional security analysis.*
+*This tool is developed by Jackaltx and powered by Anthropic's Claude AI for professional security analysis.*
