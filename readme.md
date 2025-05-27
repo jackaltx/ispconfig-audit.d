@@ -2,16 +2,17 @@
 
 "Get professional security analysis of your ISPConfig3 configuration using Claude AI - the same tool used by security professionals and hosting providers." - Claude
 
-This is an experiment.  I am using Claude the AI to help me tighten my system. This is to help me migrate to a new ispconfig server in the cloud. I like Linode because I know how much it will cost me for my "personal" presence on the intenet. I have been using Claude for a while to help me with a personal project for monitoring/observing my server. Every few years I have to migrate and inevitably that requires quite a bit of effort due my poor documentation habits.  Claude and I have developed a few ansible configured tools for monitoring, auditing, and updating. See my github repostories for that work <https://github.com/jackaltx>.
+This is an experiment.  I am using Claude the AI to help me tighten my system. This is to help me migrate to a new ispconfig server in the cloud. I like Linode because I know how much it will cost me for my "personal" presence on the intenet. However, I am not going to pay for a "baseline image", so I use their images. It is up to me to secure it.
 
-This is crude measuring tool for helping me build up a reasonably safe environment. Out of the box I like what ISPConfig does. Many thanks for the hard work that takes.  But I tinker and tightening keeps me safer.  So,  I asked claude to write me a script that does a "build audit" focused on security.  I want to be able to run it peridically and know where I am. So we generated a script that outputs a json fingerprint which I manually feed into Claude to create the report.
+I have been using Claude for a while to help me with a personal project for monitoring/observing my server. Every few years I have to migrate and inevitably that requires quite a bit of effort due my poor documentation habits.  Claude and I have developed a few ansible configured tools for monitoring, auditing, and updating. See my github repostories for that work <https://github.com/jackaltx>.
 
-I am putting this out with no warranty, no idea if the idea makes sense. It would realitively straight forward (meaning time/money) to create a MCP server and fee it directly. But I am not goint to spend money for that.
+This is crude measuring tool for helping me build up a reasonably safe environment. Out of the box I like what ISPConfig does. Many thanks for the hard work that takes.  But I tinker and tightening keeps me safer from those tinkerings.  So, I asked claude to write me a script that does a "build audit" focused on security.  I want to be able to run it peridically and know where I am. So we generated a script that outputs a json fingerprint which I manually feed into Claude to create the report.
+
+I am putting this out with no warranty and do not knoow if this idea will be useful.  The idea of having an AI help tighter security will inevitably happen and tt would realitively straight forward (meaning time/money) to create a MCP server to feed the AI directly. But I am not going to spend money for that.
 
 In this repository you will find two generated reports from the output of the service.
 
-Ideally this would be automated to create a test matrix of  "Cloude Image" vs "ISP Config version".
-From there a configuration language, i.e. ansible, would be developed to provide a "good enough" position to minimize disaster recovery.  
+Ideally this would be automated to create a test matrix of  "Cloud Image" vs "ISP Config version". From there a configuration language, i.e. ansible, would be used to provide a "good enough" position to minimize disaster recovery.  
 
 ## Quick Start
 
