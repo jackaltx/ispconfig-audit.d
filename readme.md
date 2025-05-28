@@ -2,17 +2,22 @@
 
 "Get professional security analysis of your ISPConfig3 configuration using Claude AI - the same tool used by security professionals and hosting providers." - Claude
 
-This is an experiment.  I am using Claude the AI to help me tighten my system. This is to help me migrate to a new ispconfig server in the cloud. I like Linode because I know how much it will cost me for my "personal" presence on the intenet. However, I am not going to pay for a "baseline image", so I use their images. It is up to me to secure it.
+This is an experiment.  I am using Claude the AI to help me tighten my system. This is to help me migrate to a new ISPconfig server in the cloud.
 
-I have been using Claude for a while to help me with a personal project for monitoring/observing my server. Every few years I have to migrate and inevitably that requires quite a bit of effort due my poor documentation habits.  Claude and I have developed a few ansible configured tools for monitoring, auditing, and updating. See my github repostories for that work <https://github.com/jackaltx>.
+I use Linode for that purpose.  Linode makes it easy to know how much it will cost me for my "personal" presence on the internet. However, I am not going to pay for a "baseline image", so I use their images. It is up to me to secure it.  This "process" is how I hope to do a better job.
 
-This is crude measuring tool for helping me build up a reasonably safe environment. Out of the box I like what ISPConfig does. Many thanks for the hard work that takes.  But I tinker and tightening keeps me safer from those tinkerings.  So, I asked claude to write me a script that does a "build audit" focused on security.  I want to be able to run it peridically and know where I am. So we generated a script that outputs a json fingerprint which I manually feed into Claude to create the report.
+This is a simple, crude measuring tool for helping me build up a reasonably safe environment using their images as I migrate to a newer version of the OS.
 
-I am putting this out with no warranty and do not knoow if this idea will be useful.  The idea of having an AI help tighter security will inevitably happen and tt would realitively straight forward (meaning time/money) to create a MCP server to feed the AI directly. But I am not going to spend money for that.
+ISPConfig provides a solid baseline for a self-hosted service with web, email, and database support. I appreciate the way it integrates these
+open source product into a system.
 
-In this repository you will find two generated reports from the output of the service.
+I tinker and tightening keeps me safer from those tinkerings.  So, I asked "Claude the AI" to write me a script that does a "build audit" focused on security.  The goal is to run it periodically and know where I am in the process.  So we developed a fast-running script that outputs a JSON fingerprint which I manually feed into Claude to create a status report.
 
-Ideally this would be automated to create a test matrix of  "Cloud Image" vs "ISP Config version". From there a configuration language, i.e. ansible, would be used to provide a "good enough" position to minimize disaster recovery.  
+I am putting this out with no warranty and do not know if this idea will be useful to anyone else.  The idea of having an AI in the loop to help tighten security will inevitably happen if it has not already.  
+
+This is the first step in a larger process.  This will be used to develop a set of Ansible scripts to harden a baseline system.  Then use security assessment tools to evaluate and refine.  In the end, I hope to have a good enough set of assessment tools.
+
+It is relatively straightforward (meaning time/money) to create an MCP server to feed the AI directly. But I am not going to spend money on that. So this process has a manual step. Ideally, this could be automated to create a test matrix of  "Cloud Image version" vs "ISPConfig version". But that costs money.  
 
 ## Quick Start
 
@@ -23,19 +28,22 @@ git clone <https://github.com/jackaltx/ispconfig-audit.d.git>
 
 ### 1. Download and Setup
 
+Note:  this needs to be run as root and the output will be owned by root.
+
 ```bash
 # Download the audit script
-wget https://raw.githubusercontent.com/jackaltx/ispconfig-audit.d/refs/heads/main/ispconfig-audit.sh
+git clone <https://github.com/jackaltx/ispconfig-audit.d.git>
+cd ispconfig.audit.d
 chmod +x ispconfig-audit.sh
 sudo mv ispconfig-audit.sh /root/bin/ # optional
 
-# Create audit directory # wherever you want, use that later
+# Create audit output directory
 sudo mkdir -p /opt/audit
 ```
 
 ### 2. Run Your First Audit
 
-Every run is cataloged, so expect changes to the support documentation.
+Every run is cataloged, so expect changes to the support documentation on each run. The important file is the json output.
 
 ```bash
 # Production mode (recommended)
@@ -82,7 +90,7 @@ git show --stat
 
 ## Getting Professional Security Analysis
 
-This next section is all Claude.  
+This next section is all written by Claude.  
 
 ### Professional Claude Analysis (Recommended)
 
