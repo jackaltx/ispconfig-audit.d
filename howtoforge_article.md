@@ -175,8 +175,6 @@ Security shouldn't be guesswork. With structured analysis and AI expertise, you 
 
 The complete documentation, script, and examples are available at: <https://github.com/jackaltx/ispconfig-audit.d>
 
-Start your first security audit today—because every misconfiguration you don't know about is a potential security incident waiting to happen.
-
 ---
 
-*The ISPConfig3 Security Audit Tool is developed by the ISPConfig community and powered by Anthropic's Claude AI for professional security analysis.*
+*The ISPConfig3 Security Audit Tool is developed for the ISPConfig community and powered by Anthropic's Claude AI for professional security analysis.*
