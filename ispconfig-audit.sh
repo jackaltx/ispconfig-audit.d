@@ -157,6 +157,11 @@ cat > "$OUTPUT_FILE" << EOF
   },
 EOF
 
+# =======================================================================================
+# =======================================================================================
+# =======================================================================================
+
+
 echo "Discovering Apache configuration..."
 # Apache Configuration
 if systemctl is-active apache2 >/dev/null 2>&1; then
@@ -186,6 +191,10 @@ else
   },
 EOF
 fi
+
+# =======================================================================================
+# =======================================================================================
+# =======================================================================================
 
 echo "Discovering MySQL/MariaDB configuration..."
 # MySQL/MariaDB Configuration
@@ -260,6 +269,12 @@ else
 EOF
 fi
 
+
+# =======================================================================================
+# =======================================================================================
+# =======================================================================================
+
+
 echo "Discovering PHP configuration..."
 # PHP Configuration
 PHP_VERSION=$(php -v 2>/dev/null | head -1 | awk '{print $2}' | cut -d- -f1)
@@ -301,22 +316,111 @@ else
 EOF
 fi
 
+
+# =======================================================================================
+# =======================================================================================
+# =======================================================================================
+
 echo "Discovering SSH configuration..."
-# SSH Configuration
+# SSH Configuration - Using running config instead of just main file
 SSH_CONFIG="/etc/ssh/sshd_config"
+
+# Get the actual running SSH configuration
+SSH_RUNNING_CONFIG=$(sshd -T 2>/dev/null)
+
+# Function to extract value from sshd -T output
+extract_sshd_value() {
+    local directive="$1"
+    local default="$2"
+    
+    if [[ -n "$SSH_RUNNING_CONFIG" ]]; then
+        echo "$SSH_RUNNING_CONFIG" | grep -i "^$directive " | awk '{print $2}' | head -1 || echo "$default"
+    else
+        echo "$default"
+    fi
+}
+
+# Find all SSH config files for documentation
+SSH_CONFIG_FILES=$(find /etc/ssh -name "sshd_config*" -type f 2>/dev/null | sort)
+
 cat >> "$OUTPUT_FILE" << EOF
   "ssh_configuration": {
-    "config_file": "$SSH_CONFIG",
-    "content": "$(read_config_file "$SSH_CONFIG")",
-    "key_settings": {
-      "port": "$(extract_config_value "$SSH_CONFIG" "^Port" "22")",
-      "permit_root_login": "$(extract_config_value "$SSH_CONFIG" "^PermitRootLogin" "default")",
-      "password_authentication": "$(extract_config_value "$SSH_CONFIG" "^PasswordAuthentication" "default")",
-      "x11_forwarding": "$(extract_config_value "$SSH_CONFIG" "^X11Forwarding" "default")",
-      "max_auth_tries": "$(extract_config_value "$SSH_CONFIG" "^MaxAuthTries" "default")"
+    "main_config_file": "$SSH_CONFIG",
+    "config_files_found": [
+$(echo "$SSH_CONFIG_FILES" | while IFS= read -r config_file; do
+    [[ -z "$config_file" ]] && continue
+    echo "      \"$config_file\""
+    if [[ "$config_file" != "$(echo "$SSH_CONFIG_FILES" | tail -1)" ]]; then
+        echo ","
+    fi
+done)
+    ],
+    "running_config_analysis": {
+      "method": "sshd -T",
+      "config_accessible": $([ -n "$SSH_RUNNING_CONFIG" ] && echo "true" || echo "false")
+    },
+    "effective_settings": {
+      "port": "$(extract_sshd_value "port" "22")",
+      "permitrootlogin": "$(extract_sshd_value "permitrootlogin" "unknown")",
+      "passwordauthentication": "$(extract_sshd_value "passwordauthentication" "unknown")",
+      "pubkeyauthentication": "$(extract_sshd_value "pubkeyauthentication" "unknown")",
+      "x11forwarding": "$(extract_sshd_value "x11forwarding" "unknown")",
+      "allowagentforwarding": "$(extract_sshd_value "allowagentforwarding" "unknown")",
+      "allowtcpforwarding": "$(extract_sshd_value "allowtcpforwarding" "unknown")",
+      "permittunnel": "$(extract_sshd_value "permittunnel" "unknown")",
+      "maxauthtries": "$(extract_sshd_value "maxauthtries" "6")",
+      "logingracetime": "$(extract_sshd_value "logingracetime" "120")",
+      "clientaliveinterval": "$(extract_sshd_value "clientaliveinterval" "0")",
+      "clientalivecountmax": "$(extract_sshd_value "clientalivecountmax" "3")",
+      "protocol": "$(extract_sshd_value "protocol" "2")",
+      "ciphers": "$(extract_sshd_value "ciphers" "default")",
+      "macs": "$(extract_sshd_value "macs" "default")",
+      "kexalgorithms": "$(extract_sshd_value "kexalgorithms" "default")"
+    },
+    "security_analysis": {
+      "root_login_method": "$(extract_sshd_value "permitrootlogin" "unknown")",
+      "password_auth_enabled": "$(extract_sshd_value "passwordauthentication" "unknown")",
+      "key_auth_enabled": "$(extract_sshd_value "pubkeyauthentication" "unknown")",
+      "forwarding_risks": {
+        "x11_forwarding": "$(extract_sshd_value "x11forwarding" "unknown")",
+        "agent_forwarding": "$(extract_sshd_value "allowagentforwarding" "unknown")",
+        "tcp_forwarding": "$(extract_sshd_value "allowtcpforwarding" "unknown")",
+        "tunnel_forwarding": "$(extract_sshd_value "permittunnel" "unknown")"
+      },
+      "session_security": {
+        "auth_attempts_limit": "$(extract_sshd_value "maxauthtries" "6")",
+        "login_grace_period": "$(extract_sshd_value "logingracetime" "120")",
+        "keepalive_interval": "$(extract_sshd_value "clientaliveinterval" "0")",
+        "keepalive_max_count": "$(extract_sshd_value "clientalivecountmax" "3")"
+      }
+    },
+    "config_file_contents": {
+      "main_config": {
+        "file": "$SSH_CONFIG",
+        "content": "$(read_config_file "$SSH_CONFIG")"
+      },
+      "drop_in_configs": [
+$(find /etc/ssh/sshd_config.d -name "*.conf" -type f 2>/dev/null | sort | while IFS= read -r config_file; do
+    [[ -z "$config_file" ]] && continue
+    echo "        {"
+    echo "          \"file\": \"$config_file\","
+    echo "          \"content\": \"$(read_config_file "$config_file")\""
+    echo -n "        }"
+    if [[ "$config_file" != "$(find /etc/ssh/sshd_config.d -name "*.conf" -type f 2>/dev/null | sort | tail -1)" ]]; then
+        echo ","
+    else
+        echo ""
+    fi
+done)
+      ]
     }
   },
 EOF
+
+
+# =======================================================================================
+# =======================================================================================
+# =======================================================================================
 
 echo "Discovering ISPConfig3 configuration..."
 # ISPConfig3 Configuration
@@ -360,6 +464,11 @@ cat >> "$OUTPUT_FILE" << EOF
   },
 EOF
 
+
+# =======================================================================================
+# =======================================================================================
+# =======================================================================================
+
 echo "Gathering network service bindings..."
 # Network Services
 cat >> "$OUTPUT_FILE" << EOF
@@ -385,6 +494,11 @@ $(ss -tlnp | awk 'NR>1 {
     ]
   },
 EOF
+
+# =======================================================================================
+# =======================================================================================
+# =======================================================================================
+
 
 echo "Finalizing audit report..."
 # Close JSON structure
