@@ -90,15 +90,18 @@ git show --stat
 
 ## Getting Professional Security Analysis
 
-This next section is all written by Claude.  
+This next section is all written by Claude. The reports are ok, simple to use "do this to be better".  Should you do what AI suggests?  Think each one through and think in layers.
+
+What I want to accomplish is test Claude repeatability.  So far, it has been consistent here.  As I configure and test with external audit tools, it will be interesting to compare.
 
 ### Professional Claude Analysis (Recommended)
 
 For comprehensive security review and recommendations:
 
-1. **Sign up for Claude**: <https://claude.ai/referral/T7Fxp0WbSQ> *(Get started with this special link)*
+1. **Sign up for Claude**: <https://claude.ai/referral/T7Fxp0WbSQ> *(shameless plug for claude credits)*
 2. **Upload your audit file**: Drag and drop `/opt/audit/ispconfig-audit/ispconfig-config.json`
-3. **Request analysis**: "Use the prompt in the next section"
+3. **Upload any any hardening guides**:  An SSH guide is in this repository.
+4. **Request analysis**: "Use the prompt in the next section"
 
 ### Claude Prompt to perform analysis
 
@@ -107,7 +110,7 @@ I've run a security audit on my ISPConfig3 server using the configuration audit 
 Please analyze this configuration and provide specific security recommendations.
 
 Key areas I need analyzed:
-1. SSH configuration security (root access, authentication methods, timeouts)
+1. Use the SSH hardening checklist. Focus on the specific gaps and provide actionable commands for each finding.
 2. MySQL/MariaDB security (user accounts, anonymous access, SSL configuration)
 3. Apache web server hardening (information disclosure, security headers)
 4. PHP security settings (version exposure, dangerous functions, file handling)

@@ -276,22 +276,37 @@ fi
 
 
 echo "Discovering PHP configuration..."
-# PHP Configuration
+# PHP Configuration - Updated to handle both Apache module and PHP-FPM
 PHP_VERSION=$(php -v 2>/dev/null | head -1 | awk '{print $2}' | cut -d- -f1)
 if [[ -n "$PHP_VERSION" ]]; then
     # Extract major.minor version for path
     PHP_MAJOR_MINOR=$(echo "$PHP_VERSION" | cut -d. -f1,2)
     PHP_INI_DIR="/etc/php/${PHP_MAJOR_MINOR}"
-    PHP_APACHE_INI="$PHP_INI_DIR/apache2/php.ini"
     PHP_CLI_INI="$PHP_INI_DIR/cli/php.ini"
+    
+    # Detect if using PHP-FPM or Apache module
+    PHP_WEB_INI=""
+    PHP_WEB_TYPE="unknown"
+    
+    # Check for PHP-FPM first (modern setups)
+    if systemctl is-active php${PHP_MAJOR_MINOR}-fpm >/dev/null 2>&1; then
+        PHP_WEB_INI="$PHP_INI_DIR/fpm/php.ini"
+        PHP_WEB_TYPE="php-fpm"
+    # Check for Apache module (traditional setups)
+    elif [[ -f "$PHP_INI_DIR/apache2/php.ini" ]]; then
+        PHP_WEB_INI="$PHP_INI_DIR/apache2/php.ini"
+        PHP_WEB_TYPE="apache-module"
+    fi
     
     cat >> "$OUTPUT_FILE" << EOF
   "php_configuration": {
     "version": "$PHP_VERSION",
-    "apache_config": {
-      "file": "$PHP_APACHE_INI",
-      "exists": $([ -f "$PHP_APACHE_INI" ] && echo "true" || echo "false"),
-      "content": "$(read_config_file "$PHP_APACHE_INI")"
+    "web_server_integration": {
+      "type": "$PHP_WEB_TYPE",
+      "service_active": $([ "$PHP_WEB_TYPE" = "php-fpm" ] && systemctl is-active php${PHP_MAJOR_MINOR}-fpm >/dev/null 2>&1 && echo "true" || echo "false"),
+      "config_file": "$PHP_WEB_INI",
+      "exists": $([ -f "$PHP_WEB_INI" ] && echo "true" || echo "false"),
+      "content": "$(read_config_file "$PHP_WEB_INI")"
     },
     "cli_config": {
       "file": "$PHP_CLI_INI", 
@@ -304,6 +319,23 @@ if [[ -n "$PHP_VERSION" ]]; then
       "log_errors": "$(php -i 2>/dev/null | grep '^log_errors' | awk '{print $3}' || echo 'unknown')",
       "allow_url_fopen": "$(php -i 2>/dev/null | grep '^allow_url_fopen' | awk '{print $3}' || echo 'unknown')",
       "allow_url_include": "$(php -i 2>/dev/null | grep '^allow_url_include' | awk '{print $3}' || echo 'unknown')"
+    },
+    "fpm_analysis": {
+      "pools_directory": "$PHP_INI_DIR/fpm/pool.d/",
+      "pool_configs": [
+$(find "$PHP_INI_DIR/fpm/pool.d/" -name "*.conf" -type f 2>/dev/null | sort | while IFS= read -r pool_file; do
+    [[ -z "$pool_file" ]] && continue
+    echo "        {"
+    echo "          \"pool_file\": \"$pool_file\","
+    echo "          \"content\": \"$(read_config_file "$pool_file")\""
+    echo -n "        }"
+    if [[ "$pool_file" != "$(find "$PHP_INI_DIR/fpm/pool.d/" -name "*.conf" -type f 2>/dev/null | sort | tail -1)" ]]; then
+        echo ","
+    else
+        echo ""
+    fi
+done)
+      ]
     }
   },
 EOF
@@ -315,7 +347,6 @@ else
   },
 EOF
 fi
-
 
 # =======================================================================================
 # =======================================================================================
